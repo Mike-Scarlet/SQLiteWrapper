@@ -17,6 +17,7 @@ class SQLField:
   UNIQUE_TOKEN = "UNIQUE"
   NOT_NULL_TOKEN = "NOT NULL"
   AUTO_INCREMENT_TOKEN = "AUTOINCREMENT"
+  DEFAULT_TOKEN = "DEFAULT"
 
   """ base sql field impl """
   def __init__(self,
@@ -24,13 +25,15 @@ class SQLField:
                data_type_str: str,
                unique: bool = False,
                not_null: bool = False,
-               auto_increment: bool = False) -> None:
+               auto_increment: bool = False,
+               default: any = None) -> None:
     self.name = name
     self.data_type_str = data_type_str
     self.data_class = SQLField.GetClass(self.data_type_str)
     self.unique = unique
     self.not_null = not_null
     self.auto_increment = auto_increment
+    self.default = default
     self.whole_idx = None
 
   def __repr__(self) -> str:
@@ -43,6 +46,8 @@ class SQLField:
       subs.append(SQLField.UNIQUE_TOKEN)
     if self.not_null:
       subs.append(SQLField.NOT_NULL_TOKEN)
+    if self.default is not None:
+      subs.append("DEFAULT {}".format(self.default))
     if self.auto_increment:
       # note: in sqlite, auto increment must be led by primary key
       subs.append("PRIMARY KEY " + SQLField.AUTO_INCREMENT_TOKEN)
@@ -80,7 +85,7 @@ class SQLField:
       raise ValueError("not supported data type: {}".format(s))
 
 class SQLTable:
-  def __init__(self, name: bool) -> None:
+  def __init__(self, name: str) -> None:
     self.fields = []
     self.field_name_dict = {}
     self.name = name
@@ -97,7 +102,7 @@ class SQLTable:
 
       # take out extra param
       value_up = value.upper()
-      test_result = {}
+      test_result = {SQLField.DEFAULT_TOKEN: None}
       for test_token in (SQLField.UNIQUE_TOKEN, SQLField.NOT_NULL_TOKEN, SQLField.AUTO_INCREMENT_TOKEN):
         if test_token in value_up:
           start_idx = value_up.find(test_token)
@@ -106,13 +111,19 @@ class SQLTable:
           test_result[test_token] = True
         else:
           test_result[test_token] = False
+      # parse DEFAULT
+      if SQLField.DEFAULT_TOKEN in value_up:
+        start_idx = value_up.find(SQLField.DEFAULT_TOKEN)
+        # get default value
+        default_value = value[start_idx + len(SQLField.DEFAULT_TOKEN):].strip().split(" ")[0]
+        test_result[SQLField.DEFAULT_TOKEN] = default_value
       
       field_type = value.strip().split(" ")
       if len(field_type) <= 0:
         raise ValueError("invalid field type {}".format(field_type))
       field = SQLField(field_name, field_type[0],
                        test_result[SQLField.UNIQUE_TOKEN], test_result[SQLField.NOT_NULL_TOKEN], 
-                       test_result[SQLField.AUTO_INCREMENT_TOKEN])
+                       test_result[SQLField.AUTO_INCREMENT_TOKEN], test_result[SQLField.DEFAULT_TOKEN])
       table.fields.append(field)
       table.field_name_dict[field_name] = field
 
@@ -174,5 +185,15 @@ if __name__ == "__main__":
       }
     }
   }
-  db = SQLDatabase.CreateFromDict(table_name_initiate_dict)
+  test_default_dict = {
+    "BasicTable": {
+      "field_definition": {
+        "id": "INT DEFAULT 2",
+        "name": "TEXT"
+      }
+    }
+  }
+
+  # db = SQLDatabase.CreateFromDict(table_name_initiate_dict)
+  db = SQLDatabase.CreateFromDict(test_default_dict)
   pass

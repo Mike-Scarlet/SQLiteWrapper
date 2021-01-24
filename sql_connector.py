@@ -57,6 +57,15 @@ class SQLite3Connector:
       else:
         self._CreateTable(table_name)
 
+  def AddTable(self, table: SQLTable) -> None:
+    if self.conn == None:
+      return
+    if table.name in self.structure.table_name_dict:
+      raise RuntimeError("trying to add exist table: {}".format(table.name))
+    self.structure.table_name_dict[table.name] = table
+    self.structure.tables.append(table)
+    self._CreateTable(table.name)
+
   def _CheckAndAddTableFields(self, table_name: str) -> None:
     field_with_idx = self._GetFieldsWithIndexForTable(table_name)
     for field in self.structure.table_name_dict[table_name].fields:

@@ -1,5 +1,7 @@
 
 from logging import basicConfig
+import sqlite3
+from sqlite3.dbapi2 import IntegrityError
 from sql_connector import SQLite3Connector
 
 class SQLite3Operator:
@@ -93,7 +95,7 @@ if __name__ == "__main__":
     "BasicTable": {
       "field_definition": {
         "id": "INTEGER AUTOINCREMENT",
-        "name": "TEXT NOT NULL",
+        "name": "TEXT UNIQUE NOT NULL",
         "time": "REAL"
       },
     },
@@ -111,9 +113,14 @@ if __name__ == "__main__":
   conn.Connect()
   conn.TableValidation()
   op = SQLite3Operator(conn)
-  # op.InsertDictToTable({"name": "hello"}, "BasicTable")
+  op.InsertDictToTable({"name": "ssc"}, "BasicTable")
+  try:
+    op.InsertDictToTable({"name": "hello"}, "BasicTable")
+  except sqlite3.IntegrityError:
+    print("integrity error happened")
+  op.InsertDictToTable({"name": "awda"}, "BasicTable")
   # op.UpdateFieldFromTable({"name": "aka"}, "BasicTable", "id == 1")
-  r = op.SelectFieldFromTable("*", "BasicTable")
-  print(r)
+  # r = op.SelectFieldFromTable("*", "BasicTable")
+  # print(r)
   op.Commit()
   pass
