@@ -14,10 +14,10 @@ class SQLite3Operator:
     if self.connector.conn != None:
       self.connector.conn.commit()
   
-  def InsertDictToTable(self, d, table_name):
+  def InsertDictToTable(self, d, table_name, or_condition=""):
     if self.connector.conn == None:
       return
-    insert_sql = "INSERT INTO {} (".format(table_name)
+    insert_sql = "INSERT {} INTO {} (".format(or_condition, table_name)
     insert_col = []
     insert_data = []
     field_name_dict = self.connector.structure.table_name_dict[table_name].field_name_dict
@@ -74,7 +74,7 @@ class SQLite3Operator:
       fields_class_list = list(map(lambda s: field_name_dict[s], fields_name_list))
     select_sql = "SELECT {} FROM {}".format(fields, table_name)
     if condition is not None:
-      select_sql += "WHERE {}".format(condition)
+      select_sql += " WHERE {}".format(condition)
     select_sql += ";"
     cursor = self.connector.conn.cursor()
     cursor.execute(select_sql)
@@ -87,6 +87,20 @@ class SQLite3Operator:
             fields_class_list[idx].ParseFromSQLData(c)
       final_result.append(record_result)
     return final_result
+
+  def RawSelectFieldFromTable(self, fields, table_name, condition=None):
+    if isinstance(fields, (list, tuple)):
+      fields = ",".join(fields)
+    table_fields = self.connector.structure.table_name_dict[table_name].fields
+    
+    select_sql = "SELECT {} FROM {}".format(fields, table_name)
+    if condition is not None:
+      select_sql += " WHERE {}".format(condition)
+    select_sql += ";"
+    cursor = self.connector.conn.cursor()
+    cursor.execute(select_sql)
+    result_list = cursor.fetchall()
+    return result_list
 
 if __name__ == "__main__":
   from sql_structure import *

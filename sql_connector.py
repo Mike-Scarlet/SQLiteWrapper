@@ -24,6 +24,7 @@ class SQLite3Connector:
 
   def LoadStructureFromDatabase(self) -> None:
     if self.conn == None:
+      self.logger.warning("[LoadStructureFromDatabase] self.conn is None")
       return
     # get all current table's name
     cursor = self.conn.cursor()
@@ -44,6 +45,7 @@ class SQLite3Connector:
 
   def TableValidation(self) -> None:
     if self.conn == None:
+      self.logger.warning("[TableValidation] self.conn is None")
       return
     # get all current table's name
     cursor = self.conn.cursor()
@@ -59,6 +61,7 @@ class SQLite3Connector:
 
   def AddTable(self, table: SQLTable) -> None:
     if self.conn == None:
+      self.logger.warning("[AddTable] self.conn is None")
       return
     if table.name in self.structure.table_name_dict:
       raise RuntimeError("trying to add exist table: {}".format(table.name))
