@@ -13,6 +13,21 @@ class SQLite3Connector:
     self.commit_when_leave = commit_when_leave
     self.logger = logging.getLogger("SQLConnector")
 
+  def __getstate__(self):
+    return {
+      "structure": self.structure,
+      "path": self.path,
+      "commit_when_leave": self.commit_when_leave
+    }
+
+  def __setstate__(self, state):
+    self.structure = state["structure"]
+    self.path = state["path"]
+    self.commit_when_leave = state["commit_when_leave"]
+    self.logger = logging.getLogger("SQLConnector")
+    self.conn = sqlite3.connect(self.path)
+    pass
+
   def Connect(self) -> None:
     if not os.path.exists(self.path):
       if SQLite3Connector._ui_interactive_check(
