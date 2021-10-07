@@ -31,7 +31,7 @@ class SQLite3Connector:
   def Connect(self) -> None:
     if not os.path.exists(self.path):
       if SQLite3Connector._ui_interactive_check(
-          "No SQL file at database_path, Do you want to create one?",
+          "No SQL file at database_path: {}, Do you want to create one?".format(self.path),
           "creating: " + self.path):
         self.conn = sqlite3.connect(self.path)
     else:

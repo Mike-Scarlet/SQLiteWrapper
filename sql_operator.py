@@ -1,18 +1,37 @@
 
 from logging import basicConfig
+import logging
 import sqlite3
-from sqlite3.dbapi2 import IntegrityError
 from sql_connector import SQLite3Connector
 
 class SQLite3Operator:
   def __init__(self, sqlite_connector: SQLite3Connector) -> None:
     self.connector = sqlite_connector
+    self.auto_save = False
+    self.auto_save_interval = 10
+    self.auto_save_counter = 0
+    self.logger = logging.getLogger("SQLite3Operator")
+
+  def SetAutoSave(self, auto_save):
+    self.auto_save = auto_save
+
+  def SetAutoSaveInterval(self, interval):
+    self.auto_save_interval = interval
+
+  # ================ auto save ====================
+  def CheckAutoSave(self):
+    if self.connector.conn != None:
+      self.auto_save_counter += 1
+      if self.auto_save and self.auto_save_counter > self.auto_save_interval:
+        self.logger.debug("database {} begin auto save".format(self.connector.path))
+        self.Commit()
 
   # ================ basic op fields ================
   # add delete modify query
   def Commit(self):
     if self.connector.conn != None:
       self.connector.conn.commit()
+      self.auto_save_counter = 0
   
   def InsertDictToTable(self, d, table_name, or_condition=""):
     if self.connector.conn == None:
@@ -30,6 +49,7 @@ class SQLite3Operator:
     insert_sql += ",".join(["?" for _ in range(len(insert_data))])
     insert_sql += ");"
     self.connector.conn.execute(insert_sql, insert_data)
+    self.CheckAutoSave()
 
   def DeleteFromTableByCondition(self, table_name, condition):
     if self.connector.conn == None:
@@ -39,6 +59,7 @@ class SQLite3Operator:
       delete_sql += " WHERE {}".format(condition)
     delete_sql += ";"
     self.connector.conn.execute(delete_sql)
+    self.CheckAutoSave()
 
   def UpdateFieldFromTable(self, field_dict, table_name, condition):
     if self.connector.conn == None:
@@ -56,6 +77,7 @@ class SQLite3Operator:
       update_sql += " WHERE {}".format(condition)
     update_sql += ";"
     self.connector.conn.execute(update_sql, field_datas)
+    self.CheckAutoSave()
 
   def SelectFieldFromTable(self, fields, table_name, condition=None):
     if isinstance(fields, (list, tuple)):
