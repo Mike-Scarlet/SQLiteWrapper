@@ -13,10 +13,25 @@ class SQLite3Connector:
     self.commit_when_leave = commit_when_leave
     self.logger = logging.getLogger("SQLConnector")
 
-  def Connect(self, check_same_thread=True) -> None:
-    if not os.path.exists(self.path):
+  def __getstate__(self):
+    return {
+      "structure": self.structure,
+      "path": self.path,
+      "commit_when_leave": self.commit_when_leave
+    }
+
+  def __setstate__(self, state):
+    self.structure = state["structure"]
+    self.path = state["path"]
+    self.commit_when_leave = state["commit_when_leave"]
+    self.logger = logging.getLogger("SQLConnector")
+    self.conn = sqlite3.connect(self.path)
+    pass
+
+  def Connect(self, do_check=True, check_same_thread=True) -> None:
+    if not os.path.exists(self.path) and do_check:
       if SQLite3Connector._ui_interactive_check(
-          "No SQL file at database_path, Do you want to create one?",
+          "No SQL file at database_path: {}, Do you want to create one?".format(self.path),
           "creating: " + self.path):
         self.conn = sqlite3.connect(self.path, check_same_thread=check_same_thread)
     else:
