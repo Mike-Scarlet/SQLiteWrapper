@@ -6,12 +6,13 @@ import copy
 import logging
 
 class SQLite3Connector:
-  def __init__(self, path: str, structure: SQLDatabase, commit_when_leave: bool=True) -> None:
+  def __init__(self, path: str, structure: SQLDatabase, commit_when_leave: bool=True, verbose_level=10) -> None:
     self.structure = copy.deepcopy(structure)
     self.path = path
     self.conn = None
     self.commit_when_leave = commit_when_leave
     self.logger = logging.getLogger("SQLConnector")
+    self.verbose_level = verbose_level
 
   def __getstate__(self):
     return {
@@ -29,10 +30,15 @@ class SQLite3Connector:
     pass
 
   def Connect(self, do_check=True) -> None:
-    if not os.path.exists(self.path) and do_check:
-      if SQLite3Connector._ui_interactive_check(
-          "No SQL file at database_path: {}, Do you want to create one?".format(self.path),
-          "creating: " + self.path):
+    if not os.path.exists(self.path):
+      if do_check:
+        if SQLite3Connector._ui_interactive_check(
+            "No SQL file at database_path: {}, Do you want to create one?".format(self.path),
+            "creating: " + self.path):
+          self.conn = sqlite3.connect(self.path)
+      else:
+        if self.verbose_level >= 10:
+          print("creating new sqlite file at path: {}".format(self.path))
         self.conn = sqlite3.connect(self.path)
     else:
       self.conn = sqlite3.connect(self.path)
@@ -159,11 +165,6 @@ class SQLite3Connector:
       self.conn.commit()
       self.conn.close()
       self.logger.info("{} commit and exit success".format(self.path))
-      # print("Commited change in database file")
-      # print("-"*5 + " closing " + "-"*5)
-      # print("    insert =", self.insert_count)
-      # print("    update =", self.update_count)
-      # print("-"*19)
 
 if __name__ == "__main__":
   table_name_initiate_dict = {
