@@ -124,6 +124,15 @@ class SQLite3Operator:
     result_list = cursor.fetchall()
     return result_list
 
+  def GetLastInsertRowID(self):
+    cursor = self.connector.conn.cursor()
+    cursor.execute("select last_insert_rowid()")
+    result_list = cursor.fetchall()
+    if len(result_list) == 0:
+      return None
+    else:
+      return result_list[0][0]
+
 if __name__ == "__main__":
   from sql_structure import *
 

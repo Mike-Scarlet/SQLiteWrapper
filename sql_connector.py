@@ -29,19 +29,19 @@ class SQLite3Connector:
     self.conn = sqlite3.connect(self.path)
     pass
 
-  def Connect(self, do_check=True) -> None:
+  def Connect(self, do_check=True, check_same_thread=True) -> None:
     if not os.path.exists(self.path):
       if do_check:
         if SQLite3Connector._ui_interactive_check(
             "No SQL file at database_path: {}, Do you want to create one?".format(self.path),
             "creating: " + self.path):
-          self.conn = sqlite3.connect(self.path)
+          self.conn = sqlite3.connect(self.path, check_same_thread=check_same_thread)
       else:
         if self.verbose_level >= 10:
           print("creating new sqlite file at path: {}".format(self.path))
-        self.conn = sqlite3.connect(self.path)
+        self.conn = sqlite3.connect(self.path, check_same_thread=check_same_thread)
     else:
-      self.conn = sqlite3.connect(self.path)
+      self.conn = sqlite3.connect(self.path, check_same_thread=check_same_thread)
 
   def LoadStructureFromDatabase(self) -> None:
     if self.conn == None:

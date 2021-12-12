@@ -172,7 +172,7 @@ if __name__ == "__main__":
   table_name_initiate_dict = {
     "BasicTable": {
       "field_definition": {
-        "id": "INT NOT NULL AUTOINCREMENT",
+        "id": "INTEGER NOT NULL AUTOINCREMENT",
         "name": "TEXT",
         "time": "REAL"
       },
