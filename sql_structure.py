@@ -63,7 +63,8 @@ class SQLField:
     elif self.data_class in (int, float):
       return str(value)
     elif self.data_class == bytes:
-      raise NotImplementedError()
+      assert(isinstance(value, bytes))
+      return value
     else:
       raise ValueError("not supported data type: {}".format(self.data_class))
   
