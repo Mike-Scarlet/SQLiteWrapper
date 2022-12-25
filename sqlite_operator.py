@@ -2,7 +2,7 @@
 from logging import basicConfig
 import logging
 import sqlite3
-from sql_connector import SQLite3Connector
+from sqlite_connector import SQLite3Connector
 
 class SQLite3Operator:
   def __init__(self, sqlite_connector: SQLite3Connector) -> None:
@@ -134,7 +134,7 @@ class SQLite3Operator:
       return result_list[0][0]
 
 if __name__ == "__main__":
-  from sql_structure import *
+  from sqlite_structure import *
 
   table_name_initiate_dict = {
     "BasicTable": {

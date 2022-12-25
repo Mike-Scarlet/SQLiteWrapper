@@ -1,5 +1,5 @@
 
-from sql_structure import SQLDatabase, SQLTable, SQLField
+from sqlite_structure import SQLDatabase, SQLTable, SQLField
 import sqlite3
 import os
 import copy

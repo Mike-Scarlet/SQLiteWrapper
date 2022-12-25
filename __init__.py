@@ -7,8 +7,8 @@ __all__ = [
 
 sys.path.append(os.path.dirname(__file__))
 
-from .sql_structure import SQLDatabase, SQLField, SQLTable
-from .sql_connector import SQLite3Connector
-from .sql_operator import SQLite3Operator
+from .sqlite_structure import SQLDatabase, SQLField, SQLTable
+from .sqlite_connector import SQLite3Connector
+from .sqlite_operator import SQLite3Operator
 
 sys.path.pop()
