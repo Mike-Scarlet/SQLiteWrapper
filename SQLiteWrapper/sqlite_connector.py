@@ -164,7 +164,8 @@ class SQLite3Connector:
     if self.commit_when_leave and self.conn != None:
       self.conn.commit()
       self.conn.close()
-      self.logger.info("{} commit and exit success".format(self.path))
+      if self.verbose_level >= 1:
+        self.logger.info("{} commit and exit success".format(self.path))
 
 if __name__ == "__main__":
   table_name_initiate_dict = {
