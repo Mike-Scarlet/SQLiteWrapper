@@ -109,6 +109,26 @@ class SQLite3Operator:
             fields_class_list[idx].ParseFromSQLData(c)
       final_result.append(record_result)
     return final_result
+  
+  def SelectFieldFromTableAdvanced(self, fields, table_name, sub_condition=None):
+    if isinstance(fields, (list, tuple)):
+      fields = ",".join(fields)
+    select_sql = "SELECT {} FROM {}".format(fields, table_name)
+    if sub_condition is not None:
+      select_sql += sub_condition
+    select_sql += ";"
+    cursor = self.connector.conn.cursor()
+    cursor.execute(select_sql)
+    description = cursor.description
+    return_field_names = list(map(lambda x: x[0], description))
+    result_list = cursor.fetchall()
+    final_result = []
+    for p in result_list:
+      record_result = {}
+      for field_idx, field_name in enumerate(return_field_names):
+        record_result[field_name] = p[field_idx]
+      final_result.append(record_result)
+    return final_result
 
   def RawSelectFieldFromTable(self, fields, table_name, condition=None):
     if isinstance(fields, (list, tuple)):
