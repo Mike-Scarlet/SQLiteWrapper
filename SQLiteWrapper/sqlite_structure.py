@@ -57,7 +57,7 @@ class SQLField:
 
   def ParseToSQLData(self, value):
     if value is None:
-      return "NULL"
+      return None  # since we use ?
     elif self.data_class == str:
       return value
     elif self.data_class in (int, float):
