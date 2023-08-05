@@ -152,6 +152,9 @@ class SQLite3Operator:
       return None
     else:
       return result_list[0][0]
+    
+  def Execute(self, sql_str):
+    self.connector.conn.execute(sql_str)
 
 if __name__ == "__main__":
   from sqlite_structure import *
