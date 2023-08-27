@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
   name="SQLiteWrapper",
-  version="1.0.0",
+  version="1.1.0",
   author="mike_scarlet",
   author_email="mike_scarlet@126.com",
   description="a simple sqlite wrapper",

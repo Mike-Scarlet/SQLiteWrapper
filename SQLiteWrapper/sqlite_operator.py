@@ -1,5 +1,4 @@
 
-from logging import basicConfig
 import logging
 import sqlite3
 from sqlite_connector import SQLite3Connector

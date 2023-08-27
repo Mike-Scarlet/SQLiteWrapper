@@ -84,6 +84,19 @@ class SQLField:
       return bytes
     else:
       raise ValueError("not supported data type: {}".format(s))
+    
+  @staticmethod
+  def GetSQLTypeFromPythonType(python_type):
+    if python_type == int:
+      return "INTEGER"
+    elif python_type == str:
+      return "TEXT"
+    elif python_type == float:
+      return "REAL"
+    elif python_type == bytes:
+      return "BLOB"
+    else:
+      return None
 
 class SQLTable:
   def __init__(self, name: str) -> None:
