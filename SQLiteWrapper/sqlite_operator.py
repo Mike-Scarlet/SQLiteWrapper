@@ -132,7 +132,6 @@ class SQLite3Operator:
   def RawSelectFieldFromTable(self, fields, table_name, condition=None):
     if isinstance(fields, (list, tuple)):
       fields = ",".join(fields)
-    table_fields = self.connector.structure.table_name_dict[table_name].fields
     
     select_sql = "SELECT {} FROM {}".format(fields, table_name)
     if condition is not None:
