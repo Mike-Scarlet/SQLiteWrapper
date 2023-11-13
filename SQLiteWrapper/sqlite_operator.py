@@ -42,7 +42,7 @@ class SQLite3Operator:
     for k, v in d.items():
       field_instance = field_name_dict[k]
       insert_col.append(k)
-      insert_data.append(field_instance.ParseToSQLData(v))
+      insert_data.append(field_instance.ParseToSQLTextData(v))
     insert_sql += ",".join(insert_col)
     insert_sql += ")\nVALUES ("
     insert_sql += ",".join(["?" for _ in range(len(insert_data))])
@@ -70,7 +70,7 @@ class SQLite3Operator:
     for key, value in field_dict.items():
       field_instance = field_name_dict[key]
       field_names.append(key)
-      field_datas.append(field_instance.ParseToSQLData(value))
+      field_datas.append(field_instance.ParseToSQLTextData(value))
     update_sql += ",".join(map(lambda x: "{}=?".format(x), field_names))
     if condition is not None:
       update_sql += " WHERE {}".format(condition)
@@ -81,31 +81,21 @@ class SQLite3Operator:
   def SelectFieldFromTable(self, fields, table_name, condition=None):
     if isinstance(fields, (list, tuple)):
       fields = ",".join(fields)
-    table_fields = self.connector.structure.table_name_dict[table_name].fields
-    field_name_dict = self.connector.structure.table_name_dict[table_name].field_name_dict
-    
-    if fields.strip() == "*":
-      fields_name_list = [None for _ in range(len(table_fields))]
-      fields_class_list = [None for _ in range(len(table_fields))]
-      for field in table_fields:
-        fields_name_list[field.whole_idx] = field.name
-        fields_class_list[field.whole_idx] = field
-    else:
-      fields_name_list = list(map(lambda s: s.strip(), fields.split(",")))
-      fields_class_list = list(map(lambda s: field_name_dict[s], fields_name_list))
     select_sql = "SELECT {} FROM {}".format(fields, table_name)
+
     if condition is not None:
       select_sql += " WHERE {}".format(condition)
     select_sql += ";"
     cursor = self.connector.conn.cursor()
     cursor.execute(select_sql)
+    description = cursor.description
+    return_field_names = list(map(lambda x: x[0], description))
     result_list = cursor.fetchall()
     final_result = []
     for p in result_list:
       record_result = {}
-      for idx, c in enumerate(p):
-        record_result[fields_name_list[idx]] = \
-            fields_class_list[idx].ParseFromSQLData(c)
+      for field_idx, field_name in enumerate(return_field_names):
+        record_result[field_name] = p[field_idx]
       final_result.append(record_result)
     return final_result
   

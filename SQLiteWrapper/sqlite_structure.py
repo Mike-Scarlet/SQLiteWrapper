@@ -13,6 +13,11 @@ the SQL structure should be constructed on program loading,
 when it should be read only during whole program process
 """
 
+import typing
+
+class DefaultNone:
+  pass
+
 class SQLField:
   UNIQUE_TOKEN = "UNIQUE"
   NOT_NULL_TOKEN = "NOT NULL"
@@ -26,7 +31,7 @@ class SQLField:
                unique: bool = False,
                not_null: bool = False,
                auto_increment: bool = False,
-               default: any = None) -> None:
+               default: typing.Any=None) -> None:
     self.name = name
     self.data_type_str = data_type_str
     self.data_class = SQLField.GetClass(self.data_type_str)
@@ -34,7 +39,6 @@ class SQLField:
     self.not_null = not_null
     self.auto_increment = auto_increment
     self.default = default
-    self.whole_idx = None
 
   def __repr__(self) -> str:
     return "<SQLField: '{}' at {:016X}>".format(self.name, id(self))
@@ -55,7 +59,7 @@ class SQLField:
       s += " " + " ".join(subs)
     return s
 
-  def ParseToSQLData(self, value):
+  def ParseToSQLTextData(self, value):
     if value is None:
       return None  # since we use ?
     elif self.data_class == str:
@@ -68,7 +72,7 @@ class SQLField:
     else:
       raise ValueError("not supported data type: {}".format(self.data_class))
   
-  def ParseFromSQLData(self, value):
+  def ParseFromSQLTextData(self, value):
     return value
 
   @staticmethod
