@@ -1,4 +1,9 @@
 
+__all__ = [
+  "ClassToSQLiteFieldDefinition",
+  "ClassAndPrimaryKeyToTableInitiateDict",
+]
+
 from sqlite_structure import SQLField
 
 def ClassToSQLiteFieldDefinition(class_type):
