@@ -91,17 +91,13 @@ class SQLite3Connector:
     self._CreateTable(table.name)
 
   def _CheckAndAddTableFields(self, table_name: str) -> None:
-    field_with_idx = self._GetFieldsWithIndexForTable(table_name)
+    exist_names = set(self._GetExistFieldNameForTable(table_name))
     for field in self.structure.table_name_dict[table_name].fields:
-      if field.name not in field_with_idx:
+      if field.name not in exist_names:
         self.logger.warning("{} not found in {}, creating..".format(field.name, table_name))
         self.conn.execute("alter table {} add column {} {}".format(
                            table_name, field.name, field.GetCreateStr()))
-    # refresh field key index
-    field_with_idx = self._GetFieldsWithIndexForTable(table_name)
-    for field in self.structure.table_name_dict[table_name].fields:
-      field.whole_idx = field_with_idx[field.name]
-
+    
   def _CreateTable(self, table_name: str) -> None:
     # create table
     create_sql = "CREATE TABLE " + table_name + " (\n"
@@ -113,12 +109,9 @@ class SQLite3Connector:
     create_sql = create_sql[:-2]
     create_sql += "\n);"
     self.conn.execute(create_sql)
-    # refresh field key index
-    field_with_idx = self._GetFieldsWithIndexForTable(table_name)
-    for field in self.structure.table_name_dict[table_name].fields:
-      field.whole_idx = field_with_idx[field.name]
 
   def _GetFieldsWithIndexForTable(self, table_name: str) -> dict:
+    raise ValueError("should not use this function")
     cursor = self.conn.cursor()
     cursor.execute("PRAGMA table_info(%s)" % (table_name))
     table_info = cursor.fetchall()
@@ -128,6 +121,17 @@ class SQLite3Connector:
       field_index = p[0]
       result_dict[field_name] = field_index
     return result_dict
+
+  def _GetExistFieldNameForTable(self, table_name: str) -> list:
+    cursor = self.conn.cursor()
+    cursor.execute("PRAGMA table_info(%s)" % (table_name))
+    table_info = cursor.fetchall()
+
+    result_list = []
+    for idx, p in enumerate(table_info):
+      field_name = p[1]
+      result_list.append(field_name)
+    return result_list
 
   def _GetFieldsDetailForTable(self, table_name: str) -> dict:
     cursor = self.conn.cursor()
@@ -142,7 +146,6 @@ class SQLite3Connector:
       field_default_value = p[4]
       field_pk = p[5]
       field = SQLField(field_name, field_type, not_null=field_not_null)
-      field.whole_idx = field_index
       result_dict[field_name] = field
     return result_dict
 
