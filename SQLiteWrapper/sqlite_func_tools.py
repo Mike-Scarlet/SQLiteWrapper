@@ -12,7 +12,7 @@ def ClassToSQLiteFieldDefinition(class_type):
   temp_obj = class_type()
   for name, python_type in class_type.__annotations__.items():
     field_str = SQLField.GetSQLTypeFromPythonType(python_type)
-    if isinstance(getattr(temp_obj, name), python_type) and python_type != str:   # string is not enabled
+    if isinstance(getattr(temp_obj, name, None), python_type) and python_type != str:   # string is not enabled
       field_str += " DEFAULT {}".format(getattr(temp_obj, name))
     field_definition_dict[name] = field_str
   return field_definition_dict
