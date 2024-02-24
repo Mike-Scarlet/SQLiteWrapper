@@ -65,7 +65,8 @@ class SQLField:
     elif self.data_class == str:
       return value
     elif self.data_class in (int, float):
-      return str(value)
+      # return str(value)
+      return value
     elif self.data_class == bytes:
       assert(isinstance(value, bytes))
       return value

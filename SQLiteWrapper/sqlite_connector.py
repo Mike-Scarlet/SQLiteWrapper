@@ -30,7 +30,7 @@ class SQLite3Connector:
     pass
 
   def Connect(self, do_check=True, check_same_thread=True) -> None:
-    if not os.path.exists(self.path):
+    if self.path != ":memory:" and not os.path.exists(self.path):
       if do_check:
         if SQLite3Connector._ui_interactive_check(
             "No SQL file at database_path: {}, Do you want to create one?".format(self.path),

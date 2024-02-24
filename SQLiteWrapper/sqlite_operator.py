@@ -131,6 +131,22 @@ class SQLite3Operator:
     cursor.execute(select_sql)
     result_list = cursor.fetchall()
     return result_list
+  
+  def RawSelectFieldFromTableWithReturnFieldName(self, fields, table_name, condition=None):
+    if isinstance(fields, (list, tuple)):
+      fields = ",".join(fields)
+    
+    select_sql = "SELECT {} FROM {}".format(fields, table_name)
+    if condition is not None:
+      select_sql += " WHERE {}".format(condition)
+    select_sql += ";"
+    cursor = self.connector.conn.cursor()
+    cursor.execute(select_sql)
+    result_list = cursor.fetchall()
+    
+    description = cursor.description
+    return_field_names = list(map(lambda x: x[0], description))
+    return result_list, return_field_names
 
   def GetLastInsertRowID(self):
     cursor = self.connector.conn.cursor()
