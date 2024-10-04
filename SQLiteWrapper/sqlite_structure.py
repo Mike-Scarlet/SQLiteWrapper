@@ -70,6 +70,8 @@ class SQLField:
     elif self.data_class == bytes:
       assert(isinstance(value, bytes))
       return value
+    elif self.data_class == bool:
+      return value
     else:
       raise ValueError("not supported data type: {}".format(self.data_class))
   
@@ -87,6 +89,8 @@ class SQLField:
       return float
     elif s_up == "BLOB":
       return bytes
+    elif s_up == "BOOLEAN":
+      return bool
     else:
       raise ValueError("not supported data type: {}".format(s))
     
@@ -100,6 +104,8 @@ class SQLField:
       return "REAL"
     elif python_type == bytes:
       return "BLOB"
+    elif python_type == bool:
+      return "BOOLEAN"
     else:
       return None
 
